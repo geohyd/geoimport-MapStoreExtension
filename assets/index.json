@@ -1,17 +1,11 @@
 {
   "plugins": [
     {
-      "name": "GeonetworkExtension",
-      "glyph": "user",
-      "title": "GeoNetwork",
-      "description": "Connectivite des fiches geonetwork aux couches associees.\n Gestion des droits utilisateurs sur les couches par filtre d'organisme.",
-      "cfg": {
-        "translateAttributes" : true,
-        "multiChoicesEditor" : true,
-        "colOrganisme" : "organisme",
-        "organismeFilter" : true,
-        "millesimeLayers": true
-      }
+      "name": "GeomImportExtension",
+      "glyph": "file",
+      "title": "Import de géométries",
+      "description": "Intégration du plugin GeomImport (shapefile, GPX)",
+      "cfg": {}
     }
   ]
 }
