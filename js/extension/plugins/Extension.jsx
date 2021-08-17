@@ -1,6 +1,6 @@
 /* eslint-disable */
 /* REQUIREMENTS */
-import React from 'react';
+import React, {createRef} from 'react';
 import { connect } from 'react-redux';
 import { name } from '../../../config';
 import PropTypes from 'prop-types';
@@ -10,19 +10,28 @@ import { loadGeometries } from '../state/actions';
 import geomImportEpics from '../state/epics';
 import geomImportExtension from '../state/reducers';
 
-const Dropzone = require('react-dropzone');
+import Dropzone from 'react-dropzone';
 const {Glyphicon, Grid, Row, Button: ButtonRB, ButtonGroup, Checkbox} = require('react-bootstrap');
 import tooltip from 'mapstore2/web/client/components/misc/enhancers/tooltip';
 const Button = tooltip(ButtonRB);
-const Dialog = require('mapstore2/web/client/components/misc/Dialog');
-const withHint = require("mapstore2/web/client/components/data/featuregrid/enhancers/withHint");
-const TButton = withHint(require("mapstore2/web/client/components/data/featuregrid/toolbars/TButton"));
-const HTML = require('mapstore2/web/client/components/I18N/HTML');
-const JSZip = require('jszip');
-const FileUtils = require('mapstore2/web/client/utils/FileUtils');
-const {Promise} = require('es6-promise');
-const Spinner = require('react-spinkit');
-const {findGeometryProperty} = require('mapstore2/web/client/utils/ogc/WFS/base');
+import Dialog from 'mapstore2/web/client/components/misc/Dialog';
+import withHint from "mapstore2/web/client/components/data/featuregrid/enhancers/withHint";
+import TButtonComp from "mapstore2/web/client/components/data/featuregrid/toolbars/TButton";
+const TButton = withHint(TButtonComp);
+import HTML from 'mapstore2/web/client/components/I18N/HTML';
+import JSZip from 'jszip';
+import {
+    recognizeExt,
+    MIME_LOOKUPS,
+    readKml,
+    gpxToGeoJSON,
+    readZip,
+    checkShapePrj,
+    shpToGeoJSON
+} from 'mapstore2/web/client/utils/FileUtils';
+import {Promise} from 'es6-promise';
+import Spinner from 'react-spinkit';
+import {findGeometryProperty} from 'mapstore2/web/client/utils/ogc/WFS/base';
 
 import {createSelector} from 'reselect';
 import {layersSelector} from 'mapstore2/web/client/selectors/layers';
@@ -152,23 +161,23 @@ class GeomImport extends React.Component {
     };
 
     readFiles = (files, onWarnings) => files.map((file) => {
-        const ext = FileUtils.recognizeExt(file.name);
-        const type = file.type || FileUtils.MIME_LOOKUPS[ext];
+        const ext = recognizeExt(file.name);
+        const type = file.type || MIME_LOOKUPS[ext];
         if (type === 'application/gpx+xml') {
-            return FileUtils.readKml(file).then((xml) => {
+            return readKml(file).then((xml) => {
                 this.setState({extension: 'gpx'})
-                return FileUtils.gpxToGeoJSON(xml);
+                return gpxToGeoJSON(xml);
             });
         }
         if (type === 'application/x-zip-compressed' ||
             type === 'application/zip' ) {
-            return FileUtils.readZip(file).then((buffer) => {
-                return FileUtils.checkShapePrj(buffer).then((warnings) => {
+            return readZip(file).then((buffer) => {
+                return checkShapePrj(buffer).then((warnings) => {
                     if (warnings.length > 0) {
                         onWarnings('shapefile.error.missingPrj');
                     }
                     this.setState({extension: 'shp'})
-                    return FileUtils.shpToGeoJSON(buffer);
+                    return shpToGeoJSON(buffer);
                 });
             });
         }
@@ -176,7 +185,7 @@ class GeomImport extends React.Component {
     })
 
     tryUnzip = (file) => {
-        return FileUtils.readZip(file).then((buffer) => {
+        return readZip(file).then((buffer) => {
             var zip = new JSZip();
             return zip.loadAsync(buffer);
         });
@@ -184,8 +193,8 @@ class GeomImport extends React.Component {
 
     checkFileType = (file) => {
         return new Promise((resolve, reject) => {
-            const ext = FileUtils.recognizeExt(file.name);
-            const type = file.type || FileUtils.MIME_LOOKUPS[ext];
+            const ext = recognizeExt(file.name);
+            const type = file.type || MIME_LOOKUPS[ext];
             if (type === 'application/x-zip-compressed' ||
                 type === 'application/zip' ||
                 type === 'application/gpx+xml') {
@@ -296,8 +305,8 @@ class GeomImport extends React.Component {
                         <TButton
                             id="load-geom"
                             keyProp="load-geom"
-                            tooltipId={<Message msgId="geomImport.title" />}
-                            onClick={() =>this.setState({dropZoneDisplay: !this.state.dropZoneDisplay, dropSuccess: false})}
+                            tooltipId="geomImport.title"
+                            onClick={() => this.setState({dropZoneDisplay: !this.state.dropZoneDisplay, dropSuccess: false})}
                             glyph="upload"/>
                     </div>
                     {this.state.dropZoneDisplay &&
