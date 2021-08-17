@@ -1,22 +1,20 @@
 /* ACTIONS NAMES */
-export const LOAD_DATA = 'GEONETWORK:LOAD_DATA';
-export const LOADED_DATA = 'GEONETWORK:LOADED_DATA';
-export const LOAD_ERROR = 'GEONETWORK:LOAD_ERROR';
-export const UPDATE_STYLE_MILLESIME_BTN = 'GEONETWORK:UPDATE_STYLE_MILLESIME_BTN';
-export const GET_MILLESIME_LAYERS = 'GEONETWORK:GET_MILLESIME_LAYERS';
-export const SET_MILLESIME_SELECTED = 'GEONETWORK:SET_MILLESIME_SELECTED';
-export const SET_PARENT_SELECTED = 'GEONETWORK:SET_PARENT_SELECTED';
+export const LOAD_GEOMETRIES = 'GEOMIMPORT:LOAD_GEOMETRIES';
+export const LOADED_GEOMETRIES = 'GEOMIMPORT:LOADED_GEOMETRIES';
+export const LOAD_ERROR = 'GEOMIMPORT:LOAD_ERROR';
 
 /* ACTIONS FUNCTIONS */
-export const loadData = () => {
+
+export const loadGeometries = (features) => {
     return {
-        type: LOAD_DATA
+        type: LOAD_GEOMETRIES,
+        features
     };
 };
 
-export const loadedData = (payload) => {
+export const loadedGEOMETRIES = (payload) => {
     return {
-        type: LOADED_DATA,
+        type: LOADED_GEOMETRIES,
         payload
     };
 };
@@ -25,34 +23,5 @@ export const loadError = (error) => {
     return {
         type: LOAD_ERROR,
         error
-    };
-};
-
-export const updateStyleMillesimeBtn = (style) => {
-    return {
-        type: UPDATE_STYLE_MILLESIME_BTN,
-        style
-    };
-};
-
-export const getMillesimeLayers = (id) => {
-    return {
-        type: GET_MILLESIME_LAYERS,
-        id
-    };
-};
-
-export const setMillesimeSelected = (parentId, millesimeId) => {
-    return {
-        type: SET_MILLESIME_SELECTED,
-        parentMillesime: parentId,
-        currentMillesime: millesimeId
-    };
-};
-
-export const setParentSelected = (layer) => {
-    return {
-        type: SET_PARENT_SELECTED,
-        parentSelected: layer
     };
 };
